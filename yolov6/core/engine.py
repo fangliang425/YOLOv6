@@ -187,7 +187,7 @@ class Trainer:
                 save_checkpoint(ckpt, False, save_ckpt_dir, model_name=f'{self.epoch}_ckpt')
 
             #default save best ap ckpt in stop strong aug epochs
-            # TODO add patience
+            # TODO add patience also test
             if self.epoch >= self.max_epoch - self.args.stop_aug_last_n_epoch:
                 if self.best_stop_strong_aug_ap < self.ap:
                     self.best_stop_strong_aug_ap = max(self.ap, self.best_stop_strong_aug_ap)
