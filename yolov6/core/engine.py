@@ -189,7 +189,7 @@ class Trainer:
             # patience count
             if self.ap != self.best_ap:
                 self.patience += 1
-                print(f"Remaining patience is {self.max_patience - self.patience}, this ap: {self.ap} ===> best ap: {self.best_ap}")
+                print(f"Remaining patience is {self.max_patience - self.patience}, current ap: {self.ap} ===> best ap: {self.best_ap}")
             else:
                 self.patience = 0
 
