@@ -8,7 +8,7 @@ English | [简体中文](README_cn.md)
 
  <div>
     </a>
-    <a href="[https://colab.research.google.com/github/meituan/YOLOv6/blob/main/turtorial.ipynb](https://colab.research.google.com/gist/HouSanDuo123/bdad4ad6706209d4e9275d2186d54289/tutorial.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
+    <a href="https://colab.research.google.com/github/meituan/YOLOv6/blob/main/turtorial.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
      <a href="https://www.kaggle.com/code/housanduo/yolov6"><img src="https://kaggle.com/static/images/open-in-kaggle.svg" alt="Open In Kaggle"></a>
   </div>
  <br>
@@ -130,7 +130,7 @@ python -m torch.distributed.launch --nproc_per_node 8 tools/train.py --batch 256
 # P6 models
 python -m torch.distributed.launch --nproc_per_node 8 tools/train.py --batch 128 --conf configs/yolov6s6_finetune.py --data data/dataset.yaml --img 1280 --device 0,1,2,3,4,5,6,7
 ```
-- fuse_ab: add anchor-based auxiliary branch and use Anchor Unified Training Mode (Not supported on P6 models currently)
+- fuse_ab: add anchor-based auxiliary branch and use Anchor Aided Training Mode (Not supported on P6 models currently)
 - conf: select config file to specify network/optimizer/hyperparameters. We recommend to apply yolov6n/s/m/l_finetune.py when training on your custom dataset.
 - data: prepare dataset and specify dataset paths in data.yaml ( [COCO](http://cocodataset.org), [YOLO format coco labels](https://github.com/meituan/YOLOv6/releases/download/0.1.0/coco2017labels.zip) )
 - make sure your dataset structure as follows:
@@ -202,8 +202,16 @@ Second, run inference with `tools/infer.py`
 # P5 models
 python tools/infer.py --weights yolov6s.pt --source img.jpg / imgdir / video.mp4
 # P6 models
-python tools/infer.py --weights yolov6s6.pt --img 1280 --source img.jpg / imgdir / video.mp4
+python tools/infer.py --weights yolov6s6.pt --img 1280 1280 --source img.jpg / imgdir / video.mp4
 ```
+If you want to inference on local camera or  web camera, you can run:
+```shell
+# P5 models
+python tools/infer.py --weights yolov6s.pt --webcam --webcam-addr 0
+# P6 models
+python tools/infer.py --weights yolov6s6.pt --img 1280 1280 --webcam --webcam-addr 0
+```
+`webcam-addr` can be local camera number id or rtsp address.
 </details>
 
 <details>
@@ -218,6 +226,7 @@ python tools/infer.py --weights yolov6s6.pt --img 1280 --source img.jpg / imgdir
 <details open>
 <summary> Tutorials</summary>
 
+*  [User Guide(zh_CN)](https://yolov6-docs.readthedocs.io/zh_CN/latest/) 
 *  [Train COCO Dataset](./docs/Train_coco_data.md)
 *  [Train custom data](./docs/Train_custom_data.md)
 *  [Test speed](./docs/Test_speed.md)

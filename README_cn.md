@@ -190,8 +190,16 @@ python tools/eval.py --data data/coco.yaml --batch 32 --weights yolov6s6.pt --ta
 # P5 models
 python tools/infer.py --weights yolov6s.pt --source img.jpg / imgdir / video.mp4
 # P6 models
-python tools/infer.py --weights yolov6s6.pt --img 1280 --source img.jpg / imgdir / video.mp4
+python tools/infer.py --weights yolov6s6.pt --img 1280 1280 --source img.jpg / imgdir / video.mp4
 ```
+如果您想使用本地摄像头或者网络摄像头，您可以运行:
+```shell
+# P5 models
+python tools/infer.py --weights yolov6s.pt --webcam --webcam-addr 0
+# P6 models
+python tools/infer.py --weights yolov6s6.pt --img 1280 1280 --webcam --webcam-addr 0
+```
+`webcam-addr` 可以是本地摄像头的 ID，或者是 RTSP 地址。
 </details>
 
 <details>
@@ -206,6 +214,7 @@ python tools/infer.py --weights yolov6s6.pt --img 1280 --source img.jpg / imgdir
 <details open>
 <summary> 教程 </summary>
 
+*  [用户手册（中文版）](https://yolov6-docs.readthedocs.io/zh_CN/latest/) 
 *  [训练 COCO 数据集](./docs/Train_coco_data.md)
 *  [训练自定义数据集](./docs/Train_custom_data.md)
 *  [测速](./docs/Test_speed.md)
