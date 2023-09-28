@@ -6,7 +6,7 @@
 
 ## YOLOv6
 
-官方论文: 
+官方论文:
 - [YOLOv6 v3.0: A Full-Scale Reloading](https://arxiv.org/abs/2301.05586) 🔥
 - [YOLOv6: A Single-Stage Object Detection Framework for Industrial Applications](https://arxiv.org/abs/2209.02976)
 
@@ -16,14 +16,13 @@
 
 
 ## 更新日志
+- [2023.04.28] 发布 移动端轻量级模型 [YOLOv6Lite](configs/yolov6_lite/README.md). ⭐️ [移动端模型指标](#移动端模型指标)
+- [2023.03.10] 发布 [YOLOv6-Face](https://github.com/meituan/YOLOv6/tree/yolov6-face). 🔥 [人脸检测模型指标](https://github.com/meituan/YOLOv6/blob/yolov6-face/README_cn.md#widerface-%E6%A8%A1%E5%9E%8B%E6%8C%87%E6%A0%87)
+- [2023.03.02] 更新 [基础版模型](configs/base/README_cn.md) 到 3.0 版本
 - [2023.01.06] 发布大分辨率 P6 模型以及对 P5 模型做了全面的升级 ⭐️ [模型指标](#模型指标)
-    - 添加 BiC 模块 和 SimCSPSPPF 模块以增强检测网络颈部的表征能力。
-    - 提出一个锚点辅助训练 (AAT) 策略。
-    - 为 YOLOv6 小模型引入一个新的自蒸馏训练策略。
-    - 扩展 YOLOv6 并在 COCO 上取得了实时目标检测 SOTA 的精度和速度。
 - [2022.11.04] 发布 [基础版模型](configs/base/README_cn.md) 简化训练部署流程
 - [2022.09.06] 定制化的模型量化加速方法 🚀 [量化教程](./tools/qat/README.md)
-- [2022.09.05] 发布 M/L 模型，并且进一步提高了 N/T/S 模型的性能  
+- [2022.09.05] 发布 M/L 模型，并且进一步提高了 N/T/S 模型的性能
 - [2022.06.23] 发布 N/T/S v1.0 版本模型
 
 ## 模型指标
@@ -42,7 +41,7 @@
 <details>
 <summary>表格笔记</summary>
 
-- 除了 YOLOv6-N6/S6 模型是训练了300轮的结果，其余模型均为自蒸馏训练之后的结果；  
+- 除了 YOLOv6-N6/S6 模型是训练了300轮的结果，其余模型均为自蒸馏训练之后的结果；
 - mAP 和速度指标是在 [COCO val2017](https://cocodataset.org/#download)  数据集上评估的，P5模型输入分辨率为 640×640，P6模型输入分辨率为 1280×1280；
 - 速度是在 T4 上测试的，TensorRT 版本为 7.2；
 - 复现 YOLOv6 的速度指标，请查看 [速度测试](./docs/Test_speed.md) 教程；
@@ -78,6 +77,27 @@
 
 </details>
 
+## 移动端模型指标
+
+| 模型 | 输入尺寸 | mAP<sup>val<br/>0.5:0.95 | sm8350<br/><sup>(ms) | mt6853<br/><sup>(ms) | sdm660<br/><sup>(ms) |Params<br/><sup> (M) |   FLOPs<br/><sup> (G) |
+| :----------------------------------------------------------- | ---- | -------------------- | -------------------- | -------------------- | -------------------- | -------------------- | -------------------- |
+| [**YOLOv6Lite-S**](https://github.com/meituan/YOLOv6/releases/download/0.4.0/yolov6lite_s.pt) | 320*320 | 22.4                     | 7.99                     | 11.99                     | 41.86                     | 0.55                     | 0.56                     |
+| [**YOLOv6Lite-M**](https://github.com/meituan/YOLOv6/releases/download/0.4.0/yolov6lite_m.pt) | 320*320 | 25.1                     | 9.08                     | 13.27                     | 47.95                     | 0.79                     | 0.67                     |
+| [**YOLOv6Lite-L**](https://github.com/meituan/YOLOv6/releases/download/0.4.0/yolov6lite_l.pt) | 320*320 | 28.0                     | 11.37                     | 16.20                     | 61.40                     | 1.09                     | 0.87                     |
+| [**YOLOv6Lite-L**](https://github.com/meituan/YOLOv6/releases/download/0.4.0/yolov6lite_l.pt) | 320*192 | 25.0                     | 7.02                     | 9.66                     | 36.13                     | 1.09                     | 0.52                     |
+| [**YOLOv6Lite-L**](https://github.com/meituan/YOLOv6/releases/download/0.4.0/yolov6lite_l.pt) | 224*128 | 18.9                     | 3.63                     | 4.99                     | 17.76                     | 1.09                     | 0.24                     |
+
+<details>
+<summary>表格笔记</summary>
+
+- 从模型尺寸和输入图片比例两种角度，在构建了移动端系列模型，方便不同场景下的灵活应用。
+- 所有权重都经过 400 个 epoch 的训练，并且没有使用蒸馏技术。
+-  mAP 和速度指标是在 COCO val2017 数据集上评估的，输入分辨率为表格中对应展示的。
+- 使用 MNN 2.3.0 AArch64 进行速度测试。测速时，采用2个线程，并开启arm82加速，推理预热10次，循环100次。
+- 高通888(sm8350)、天玑720(mt6853)和高通660(sdm660)分别对应高中低端不同性能的芯片，可以作为不同芯片下机型能力的参考。
+- [NCNN 速度测试](./docs/Test_NCNN_speed.md)教程可以帮助展示及复现 YOLOv6Lite 的 NCNN 速度结果。
+
+</details>
 
 ## 快速开始
 
@@ -135,6 +155,8 @@ python -m torch.distributed.launch --nproc_per_node 8 tools/train.py --batch 128
 │   │   ├── train2017
 │   │   ├── val2017
 ```
+
+YOLOv6 支持不同的输入分辨率模式，详情请参见 [如何设置输入大小](./docs/About_training_size_cn.md).
 
 </details>
 
@@ -209,12 +231,14 @@ python tools/infer.py --weights yolov6s6.pt --img 1280 1280 --webcam --webcam-ad
 *  [OpenCV Python/C++](./deploy/ONNX/OpenCV)
 *  [OpenVINO](./deploy/OpenVINO)
 *  [TensorRT](./deploy/TensorRT)
+*  [NCNN](./deploy/NCNN)
+*  [Android](./deploy/NCNN/Android)
 </details>
 
 <details open>
 <summary> 教程 </summary>
 
-*  [用户手册（中文版）](https://yolov6-docs.readthedocs.io/zh_CN/latest/) 
+*  [用户手册（中文版）](https://yolov6-docs.readthedocs.io/zh_CN/latest/)
 *  [训练 COCO 数据集](./docs/Train_coco_data.md)
 *  [训练自定义数据集](./docs/Train_custom_data.md)
 *  [测速](./docs/Test_speed.md)

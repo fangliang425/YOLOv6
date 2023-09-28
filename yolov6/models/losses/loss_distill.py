@@ -66,7 +66,9 @@ class ComputeLoss:
         epoch_num,
         max_epoch,
         temperature,
-        step_num
+        step_num,
+        batch_height,
+        batch_width
     ):
 
         feats, pred_scores, pred_distri = outputs
@@ -77,7 +79,7 @@ class ComputeLoss:
                generate_anchors(t_feats, self.fpn_strides, self.grid_cell_size, self.grid_cell_offset, device=feats[0].device)
 
         assert pred_scores.type() == pred_distri.type()
-        gt_bboxes_scale = torch.full((1,4), self.ori_img_size).type_as(pred_scores)
+        gt_bboxes_scale = torch.tensor([batch_width, batch_height, batch_width, batch_height]).type_as(pred_scores)
         batch_size = pred_scores.shape[0]
 
         # targets
@@ -170,7 +172,7 @@ class ComputeLoss:
 
         # cls loss
         target_labels = torch.where(fg_mask > 0, target_labels, torch.full_like(target_labels, self.num_classes))
-        one_hot_label = F.one_hot(target_labels, self.num_classes + 1)[..., :-1]
+        one_hot_label = F.one_hot(target_labels.long(), self.num_classes + 1)[..., :-1]
         loss_cls = self.varifocal_loss(pred_scores, target_scores, one_hot_label)
 
         target_scores_sum = target_scores.sum()
@@ -241,7 +243,7 @@ class ComputeLoss:
                            log_target=True) * (temperature * temperature)/ (N*C)
         # print(loss_cw)
         return loss_cw
-        
+
     def preprocess(self, targets, batch_size, scale_tensor):
         targets_list = np.zeros((batch_size, 1, 5)).tolist()
         for i, item in enumerate(targets.cpu().numpy().tolist()):

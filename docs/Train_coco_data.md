@@ -2,6 +2,22 @@
 
 This guidence shows the training commands for reproducing our results on COCO Dataset.
 
+
+## For Mobile models
+
+#### YOLOv6Lite-S/M/L
+
+```shell
+python -m torch.distributed.launch --nproc_per_node 4 tools/train.py \
+									--batch 128 \
+									--img_size 416 \   # train with 416 and eval with 320
+									--conf configs/yolov6_lite/yolov6_lite_s.py \   # yolov6lite_m/l
+									--data data/coco.yaml \
+									--epoch 400 \
+									--device 0,1,2,3 \
+									--name yolov6_lite_s_coco
+```
+
 ## For P5 models
 
 #### YOLOv6-N
@@ -20,6 +36,7 @@ python -m torch.distributed.launch --nproc_per_node 8 tools/train.py \
 									--name yolov6n_coco
 
 # Step 2: Self-distillation training
+# Be sure to open use_dfl mode in config file (use_dfl=True, reg_max=16)
 python -m torch.distributed.launch --nproc_per_node 8 tools/train.py \
 									--batch 128 \
 									--conf configs/yolov6n.py \
@@ -48,6 +65,7 @@ python -m torch.distributed.launch --nproc_per_node 8 tools/train.py \
 									--name yolov6s_coco # yolov6m_coco/yolov6l_coco
 
 # Step 2: Self-distillation training
+# Be sure to open use_dfl mode in config file (use_dfl=True, reg_max=16)
 python -m torch.distributed.launch --nproc_per_node 8 tools/train.py \
 									--batch 256 \ # 128 for distillation of yolov6l
 									--conf configs/yolov6s.py \ # yolov6m/yolov6l
@@ -82,6 +100,7 @@ python -m torch.distributed.launch --nproc_per_node 8 tools/train.py \
 
 ```shell
 # Step 1: Training a base model
+# Be sure to open use_dfl mode in config file (use_dfl=True, reg_max=16)
 python -m torch.distributed.launch --nproc_per_node 8 tools/train.py \
 									--batch 128 \
 									--conf configs/yolov6l6.py \ # yolov6m6
@@ -92,8 +111,9 @@ python -m torch.distributed.launch --nproc_per_node 8 tools/train.py \
 									--name yolov6l6_coco # yolov6m6_coco
 
 # Step 2: Self-distillation training
+# Be sure to open use_dfl mode in config file (use_dfl=True, reg_max=16)
 python -m torch.distributed.launch --nproc_per_node 8 tools/train.py \
-									--batch 128 \ 
+									--batch 128 \
 									--conf configs/yolov6l6.py \ # yolov6m6
 									--data data/coco.yaml \
 									--epoch 300 \
