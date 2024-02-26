@@ -9,6 +9,7 @@ from pathlib import Path
 import torch
 import torch.distributed as dist
 import sys
+sys.path.insert(0, os.getcwd() + os.sep + "YOLOv6")
 
 ROOT = os.getcwd()
 if str(ROOT) not in sys.path:
