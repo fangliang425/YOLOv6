@@ -95,6 +95,9 @@ class Trainer:
         # set color for classnames
         self.color = [tuple(np.random.choice(range(256), size=3)) for _ in range(self.model.nc)]
 
+        self.max_patience = cfg.solver.patience
+        self.patience = 0
+
         self.loss_num = 6
         self.loss_info = ['Epoch', 'iou_loss', 'dfl_loss', 'cls_loss', 'rgt_loss', 'rbox_loss', 'lk_loss']
         if self.args.distill:
@@ -108,6 +111,9 @@ class Trainer:
             self.train_before_loop()
             for self.epoch in range(self.start_epoch, self.max_epoch):
                 self.train_in_loop(self.epoch)
+                if self.patience >= self.max_patience:
+                    print(f"Remaining patience is {self.max_patience - self.patience}, stop training...")
+                    break
             self.strip_model()
 
         except Exception as _:
@@ -182,6 +188,12 @@ class Trainer:
                     'optimizer': self.optimizer.state_dict(),
                     'epoch': self.epoch,
                     }
+            # patience count
+            if self.ap != self.best_ap:
+                self.patience += 1
+                print(f"Remaining patience is {self.max_patience - self.patience}, current ap: {self.ap} ===> best ap: {self.best_ap}")
+            else:
+                self.patience = 0
 
             save_ckpt_dir = osp.join(self.save_dir, 'weights')
             save_checkpoint(ckpt, (is_val_epoch) and (self.ap == self.best_ap), save_ckpt_dir, model_name='last_ckpt')
