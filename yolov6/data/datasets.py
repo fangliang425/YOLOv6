@@ -28,6 +28,7 @@ from .data_augment import (
     mixup,
     random_affine,
     mosaic_augmentation,
+    rotate
 )
 from yolov6.utils.events import LOGGER
 import copy
@@ -79,12 +80,18 @@ class TrainValDataset(Dataset):
         self.main_process = self.rank in (-1, 0)
         self.task = self.task.capitalize()
         self.class_names = data_dict["names"]
+        
+        LOGGER.info(f"Collecting images from {self.img_dir}...")
         self.img_paths, self.labels = self.get_imgs_labels(self.img_dir)
+
         self.rect = rect
         self.specific_shape = specific_shape
         self.target_height = height
         self.target_width = width
         self.cache_ram = cache_ram
+
+        if len(self.hyp["rotations"]) > 0 and "0" not in self.hyp["rotations"]:
+            self.hyp["rotations"].append("0")
 
         if self.rect:
             shapes = [self.img_info[p]["shape"] for p in self.img_paths]
@@ -173,12 +180,17 @@ class TrainValDataset(Dataset):
                 self.batch_shapes[self.batch_indices[index]] if self.rect
                 else self.img_size
                 )
-
+        
         # Mosaic Augmentation
         if self.augment and random.random() < self.hyp["mosaic"]:
             img, labels = self.get_mosaic(index, target_shape)
             shapes = None
 
+            # Always rotate if desired
+            if len(self.hyp["rotations"]) > 0:
+                degrees = random.choice(self.hyp["rotations"])
+                img, labels = rotate(img, labels, int(degrees))
+                            
             # MixUp augmentation
             if random.random() < self.hyp["mixup"]:
                 img_other, labels_other = self.get_mosaic(
@@ -198,6 +210,12 @@ class TrainValDataset(Dataset):
             shapes = (h0, w0), ((h * ratio / h0, w * ratio / w0), pad)  # for COCO mAP rescaling
 
             labels = self.labels[index].copy()
+
+            # Always rotate if desired
+            if self.augment and len(self.hyp["rotations"]) > 0:
+                degrees = random.choice(self.hyp["rotations"])
+                img, labels = rotate(img, labels, int(degrees))
+            
             if labels.size:
                 w *= ratio
                 h *= ratio
@@ -332,7 +350,7 @@ class TrainValDataset(Dataset):
                     self.check_images = True
         else:
             self.check_images = True
-
+        
         # check images
         if self.check_images and self.main_process:
             img_info = {}
@@ -381,6 +399,7 @@ class TrainValDataset(Dataset):
                     TrainValDataset.check_label_files, zip(img_paths, label_paths)
                 )
                 pbar = tqdm(pbar, total=len(label_paths)) if self.main_process else pbar
+                
                 for (
                     img_path,
                     labels_per_file,

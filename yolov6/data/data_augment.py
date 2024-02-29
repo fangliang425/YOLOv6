@@ -73,6 +73,37 @@ def box_candidates(box1, box2, wh_thr=2, ar_thr=20, area_thr=0.1, eps=1e-16):  #
     ar = np.maximum(w2 / (h2 + eps), h2 / (w2 + eps))  # aspect ratio
     return (w2 > wh_thr) & (h2 > wh_thr) & (w2 * h2 / (w1 * h1 + eps) > area_thr) & (ar < ar_thr)  # candidates
 
+def rotate(image, labels, degrees):
+
+    height, width, _ = image.shape
+    
+    if degrees == 0:
+        image_t, labels_t = image.copy(), labels.copy()
+    if degrees == 90:
+        image_t = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        labels_t = labels.copy()
+        labels_t[:, 1] = labels[:, 2]
+        labels_t[:, 3] = labels[:, 4]
+        labels_t[:, 2] = width - labels[:, 3]
+        labels_t[:, 4] = width - labels[:, 1]
+        
+    if degrees == 180:
+        image_t = cv2.rotate(image, cv2.ROTATE_180)
+        labels_t = labels.copy()
+        labels_t[:, 1] = width  - labels[:, 3]
+        labels_t[:, 3] = width  - labels[:, 1]
+        labels_t[:, 2] = height - labels[:, 4]
+        labels_t[:, 4] = height - labels[:, 2]
+        
+    if degrees == 270:
+        image_t = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+        labels_t = labels.copy()
+        labels_t[:, 1] = height - labels[:, 4]
+        labels_t[:, 3] = height - labels[:, 2]
+        labels_t[:, 2] = labels[:, 1]
+        labels_t[:, 4] = labels[:, 3]
+
+    return image_t, labels_t
 
 def random_affine(img, labels=(), degrees=10, translate=.1, scale=.1, shear=10,
                   new_shape=(640, 640)):

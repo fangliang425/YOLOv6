@@ -207,9 +207,10 @@ class Trainer:
             # patience count
             if self.ap != self.best_ap:
                 self.patience += 1
-                print(f"Remaining patience is {self.max_patience - self.patience}, current ap: {self.ap} ===> best ap: {self.best_ap}")
             else:
                 self.patience = 0
+                
+            print(f"Remaining patience is {self.max_patience - self.patience}, current ap: {self.ap} ===> best ap: {self.best_ap}")
 
             save_ckpt_dir = osp.join(self.save_dir, 'weights')
             save_checkpoint(ckpt, (is_val_epoch) and (self.ap == self.best_ap), save_ckpt_dir, model_name='last_ckpt')
@@ -354,7 +355,7 @@ class Trainer:
     # Print loss after each steps
     def print_details(self):
         if self.main_process:
-            self.mean_loss = (self.mean_loss * self.step + self.loss_items) / (self.step + 1)
+            self.mean_loss = (self.mean_loss * self.step + self.loss_items.detach()) / (self.step + 1)
             self.pbar.set_description(('%10s' + ' %10.4g' + '%10.4g' * self.loss_num) % (f'{self.epoch}/{self.max_epoch - 1}', \
                                                                 self.scheduler.get_last_lr()[0], *(self.mean_loss)))
 
