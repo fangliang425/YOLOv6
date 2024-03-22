@@ -88,6 +88,7 @@ class Trainer:
                 self.cfg.data_aug.mosaic = 0.0
                 self.cfg.data_aug.mixup = 0.0
 
+        LOGGER.info("Getting dataloaders...")
         self.train_loader, self.val_loader = self.get_data_loader(self.args, self.cfg, self.data_dict)
 
         self.model = self.parallel_model(args, model, device)
@@ -337,10 +338,15 @@ class Trainer:
     def before_epoch(self):
         #stop strong aug like mosaic and mixup from last n epoch by recreate dataloader
         if self.epoch == self.max_epoch - self.args.stop_aug_last_n_epoch:
+
+            LOGGER.info("Getting new dataloader...")
+
             self.cfg.data_aug.mosaic = 0.0
             self.cfg.data_aug.mixup = 0.0
             self.args.cache_ram = False # disable cache ram when stop strong augmentation.
+            
             self.train_loader, self.val_loader = self.get_data_loader(self.args, self.cfg, self.data_dict)
+
         self.model.train()
         if self.rank != -1:
             self.train_loader.sampler.set_epoch(self.epoch)

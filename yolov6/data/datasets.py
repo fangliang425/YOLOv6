@@ -12,6 +12,7 @@ import hashlib
 from pathlib import Path
 
 from multiprocessing.pool import Pool
+from yolov6.data.serialize import TorchSerializedList
 
 import cv2
 import numpy as np
@@ -466,7 +467,7 @@ class TrainValDataset(Dataset):
         LOGGER.info(
             f"{self.task}: Final numbers of valid images: {len(img_paths)}/ labels: {len(labels)}. "
         )
-        return img_paths, labels
+        return TorchSerializedList(img_paths), TorchSerializedList(labels)
 
     def get_mosaic(self, index, shape):
         """Gets images and labels after mosaic augments"""
